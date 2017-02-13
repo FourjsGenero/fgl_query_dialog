@@ -1,0 +1,81 @@
+LAYOUT (WINDOWSTYLE="fglquerydlg")
+GRID
+{
+[p1                           :   :p2                     :              :b1 :b2 ]
+<SCROLLGRID sgf                                                                  >
+  [col                            |fop      |val                                 ]
+                                                    [vop     ]
+                                            [val2                                ]
+[rop  ]
+ --------------------------------------------------------------------------------
+<                                                                                >
+[bb                                                                              ]
+<TABLE t1                                                                        >
+[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
+[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
+[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
+[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
+[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
+<                                                                                >
+[qp                            ]                           [ba        :bc        ]
+}
+END
+END
+
+ATTRIBUTES
+
+RADIOGROUP p1 = FORMONLY.mode, NOT NULL,
+     ORIENTATION = HORIZONTAL,
+     ITEMS = (
+               ( "B", "Basic"),
+               ( "A", "Advanced")
+             );
+CHECKBOX p2 = FORMONLY.case, NOT NULL,
+     TEXT="Case sensitive",
+     VALUECHECKED = "S", VALUEUNCHECKED = "I";
+
+BUTTON b1 : sr.append, IMAGE="fa-plus", TEXT="";
+BUTTON b2 : sr.delete, IMAGE="fa-minus", TEXT="";
+
+SCROLLGRID sgf: filter, WANTFIXEDPAGESIZE=NO;
+PHANTOM FORMONLY.column;
+BUTTONEDIT col = FORMONLY.col_label, SCROLL,
+     NOTEDITABLE, STYLE = "fglquerydlg_column",
+     ACTION=select_column, IMAGE="_undef_";
+COMBOBOX fop = FORMONLY.comp_oper, NOT NULL,
+     INITIALIZER = fglquerydlg_cmb_comp_oper_init;
+PHANTOM FORMONLY.value;
+BUTTONEDIT val = FORMONLY.val_label, SCROLL,
+     STYLE = "fglquerydlg_value",
+     ACTION=select_value, IMAGE="_undef_";
+PHANTOM FORMONLY.val_type;
+COMBOBOX vop = FORMONLY.val_oper,
+     INITIALIZER = fglquerydlg_cmb_val_oper_init;
+PHANTOM FORMONLY.value2;
+BUTTONEDIT val2= FORMONLY.val2_label, SCROLL,
+     STYLE = "fglquerydlg_value",
+     ACTION=select_value_2, IMAGE="_undef_";
+PHANTOM FORMONLY.val2_type;
+COMBOBOX rop = FORMONLY.line_oper,
+     INITIALIZER = fglquerydlg_cmb_line_oper_init;
+
+BUTTON bb: preview, TEXT="Preview";
+TABLE t1: pvtab;
+c1 = FORMONLY.col1, SCROLL;
+c2 = FORMONLY.col2, SCROLL;
+c3 = FORMONLY.col3, SCROLL;
+c4 = FORMONLY.col4, SCROLL, HIDDEN=USER;
+c5 = FORMONLY.col5, SCROLL, HIDDEN=USER;
+c6 = FORMONLY.col6, SCROLL, HIDDEN=USER;
+c7 = FORMONLY.col7, SCROLL, HIDDEN=USER;
+BUTTON qp: pvstop, TEXT="Stop preview";
+
+BUTTON ba: accept;
+BUTTON bc: cancel;
+
+END
+
+INSTRUCTIONS
+SCREEN RECORD sr(FORMONLY.column THRU FORMONLY.line_oper);
+SCREEN RECORD pv(FORMONLY.col1 THRU FORMONLY.col7);
+END

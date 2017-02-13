@@ -1,0 +1,64 @@
+LAYOUT
+FOLDER
+
+PAGE page1 (TEXT="Constant value")
+GRID
+{
+<GROUP gv                                             >
+[fc_ed                                                ]
+[fc_da                                                ]
+[fc_dt                                                ]
+<                                                     >
+}
+END
+END
+
+PAGE page2 (TEXT="DB Columns")
+GRID
+{
+<TABLE t1               ><TABLE t2                    >
+[c11                    ][c21                         ]
+[c11                    ][c21                         ]
+[c11                    ][c21                         ]
+[c11                    ][c21                         ]
+[c11                    ][c21                         ]
+}
+END
+END
+
+PAGE page3 (TEXT="Pick list")
+TABLE table3
+{
+[c31       |c32                                       ]
+[c31       |c32                                       ]
+[c31       |c32                                       ]
+[c31       |c32                                       ]
+[c31       |c32                                       ]
+}
+END
+END
+
+END
+
+ATTRIBUTES
+
+GROUP gv: group_value, TEXT="Enter a value";
+EDIT         fc_ed = FORMONLY.cst_ed,SCROLL;
+DATEEDIT     fc_da = FORMONLY.cst_da;
+DATETIMEEDIT fc_dt = FORMONLY.cst_dt;
+
+PHANTOM FORMONLY.tn;
+c11 = FORMONLY.tl, SCROLL, TITLE="Tables";
+PHANTOM FORMONLY.cn;
+c21 = FORMONLY.cl, SCROLL, TITLE="Columns";
+
+c31 = FORMONLY.vkey, SCROLL, TITLE="Key", HIDDEN=USER;
+c32 = FORMONLY.vlabel, SCROLL, TITLE="Selection";
+
+END
+
+INSTRUCTIONS
+SCREEN RECORD sr_tabs(FORMONLY.tn,FORMONLY.tl);
+SCREEN RECORD sr_cols(FORMONLY.cn,FORMONLY.cl);
+SCREEN RECORD sr_vals(FORMONLY.vkey,FORMONLY.vlabel);
+END

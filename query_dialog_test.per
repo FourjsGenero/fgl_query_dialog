@@ -1,0 +1,21 @@
+LAYOUT
+GRID
+{
+<TABLE t1                                                              >
+[c1      |c2                     |c3               |c4    |c5          ]
+[c1      |c2                     |c3               |c4    |c5          ]
+[c1      |c2                     |c3               |c4    |c5          ]
+}
+END
+END
+ATTRIBUTES
+c1 = FORMONLY.cust_id,   TITLE="ID";
+c2 = FORMONLY.cust_name, TITLE="Name";
+c3 = FORMONLY.cust_addr, TITLE="Address";
+c4 = FORMONLY.cust_city, TITLE="City";
+c5 = FORMONLY.cust_lord, TITLE="Last order";
+END
+INSTRUCTIONS
+SCREEN RECORD sr(FORMONLY.*);
+END
+
