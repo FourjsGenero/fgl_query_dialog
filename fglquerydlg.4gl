@@ -127,18 +127,18 @@ PUBLIC FUNCTION fglquerydlg_fini()
     LET initialized=FALSE
 END FUNCTION
 
-PUBLIC FUNCTION fglquerydlg_new(n)
-    DEFINE n STRING
+PUBLIC FUNCTION fglquerydlg_new(name)
+    DEFINE name STRING
     DEFINE x SMALLINT
     LET x = qds.getLength()+1
-    LET qds[x].name = n
+    LET qds[x].name = name
     RETURN x
 END FUNCTION
 
-PUBLIC FUNCTION fglquerydlg_free(x)
-    DEFINE x SMALLINT
-    IF x>0 AND x<=qds.getLength() THEN
-       CALL qds.deleteElement(x)
+PUBLIC FUNCTION fglquerydlg_free(qx)
+    DEFINE qx SMALLINT
+    IF qx>0 AND qx<=qds.getLength() THEN
+       CALL qds.deleteElement(qx)
     END IF
 END FUNCTION
 
@@ -1319,7 +1319,7 @@ PRIVATE FUNCTION set_style_attribute(pn, name, value)
     CALL sa.setAttribute("value", value)
 END FUNCTION
 
-PUBLIC FUNCTION add_presentation_styles()
+PRIVATE FUNCTION add_presentation_styles()
     DEFINE rn om.DomNode,
            sl om.DomNode,
            nn om.DomNode
