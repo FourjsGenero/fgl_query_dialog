@@ -267,9 +267,9 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
            CALL setup_comp_oper(DIALOG, qx, arr_curr())
 
         ON ACTION select_value
-           CALL action_select_value(DIALOG, qx, arr_curr())
+           LET r = action_select_value(DIALOG, qx, arr_curr())
         AFTER FIELD val_label
-           IF NOT after_field_val_label(DIALOG, qx, arr_curr()) THEN
+           IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
               NEXT FIELD val_label
            END IF
 
@@ -277,9 +277,9 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
            CALL setup_val_oper(qx,arr_curr())
 
         ON ACTION select_value_2
-           CALL action_select_value2(DIALOG, qx, arr_curr())
+           LET r = action_select_value2(DIALOG, qx, arr_curr())
         AFTER FIELD val2_label
-           IF NOT after_field_val2_label(DIALOG, qx, arr_curr()) THEN
+           IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
               NEXT FIELD val2_label
            END IF
 
@@ -293,22 +293,22 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
 
       ON ACTION preview
          LET r = DIALOG.validate("sr.*")
-         IF NOT after_field_val_label(DIALOG, qx, arr_curr()) THEN
+         IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
             NEXT FIELD val_label
          END IF
-         IF NOT after_field_val2_label(DIALOG, qx, arr_curr()) THEN
+         IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
             NEXT FIELD val2_label
          END IF
          CALL preview_result_set(qx)
 
       ON ACTION accept
          IF INFIELD(val_label) THEN
-            IF NOT after_field_val_label(DIALOG, qx, arr_curr()) THEN
+            IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
                NEXT FIELD val_label
             END IF
          END IF
          IF INFIELD(val2_label) THEN
-            IF NOT after_field_val2_label(DIALOG, qx, arr_curr()) THEN
+            IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
                NEXT FIELD val2_label
             END IF
          END IF
@@ -327,7 +327,7 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
 
 END FUNCTION
 
-PRIVATE FUNCTION after_field_val_label(dlg, qx, x)
+PRIVATE FUNCTION check_val_label(dlg, qx, x)
     DEFINE dlg ui.Dialog,
            qx SMALLINT,
            x SMALLINT
@@ -344,7 +344,7 @@ PRIVATE FUNCTION after_field_val_label(dlg, qx, x)
     END IF
 END FUNCTION
 
-PRIVATE FUNCTION after_field_val2_label(dlg, qx, x)
+PRIVATE FUNCTION check_val2_label(dlg, qx, x)
     DEFINE dlg ui.Dialog,
            qx SMALLINT,
            x SMALLINT
@@ -366,22 +366,31 @@ PRIVATE FUNCTION action_select_value(dlg,qx,x)
            qx SMALLINT,
            x SMALLINT
     DEFINE r SMALLINT,
-           tmp1, tmp2 STRING
+           tmp1, tmp2 STRING,
+           cc1, cc2, cc3 STRING
     CALL enter_value( qx, crit[x].column, crit[x].value, crit[x].val_label )
          RETURNING r, tmp1, tmp2
     IF r != VALUE_IGN THEN
        CALL dlg.setFieldTouched("sr.val_label",TRUE)
-       IF r==VALUE_COL AND crit[x].val_type!=r THEN
-          LET crit[x].comp_oper = OPER_EQ
-          LET crit[x].val_oper = NULL
-          LET crit[x].value = NULL
-          LET crit[x].val2_label = NULL
-          LET crit[x].val2_type = NULL
+       IF r==VALUE_COL THEN
+          IF crit[x].val_type!=r THEN
+             LET crit[x].comp_oper = OPER_EQ
+             LET crit[x].val_oper = NULL
+             LET crit[x].value = NULL
+             LET crit[x].val2_label = NULL
+             LET crit[x].val2_type = NULL
+          END IF
+          CALL check_value_input(qx, x, tmp2)
+               RETURNING cc1, cc2, cc3
+          IF cc2==-1 THEN
+             RETURN FALSE
+          END IF
        END IF
        LET crit[x].value = tmp1
        LET crit[x].val_label = tmp2
        LET crit[x].val_type = r
     END IF
+    RETURN TRUE
 END FUNCTION
 
 PRIVATE FUNCTION action_select_value2(dlg,qx,x)
@@ -389,15 +398,24 @@ PRIVATE FUNCTION action_select_value2(dlg,qx,x)
            qx SMALLINT,
            x SMALLINT
     DEFINE r SMALLINT,
-           tmp1, tmp2 STRING
+           tmp1, tmp2 STRING,
+           cc1, cc2, cc3 STRING
     CALL enter_value( qx, crit[x].column, crit[x].value2, crit[x].val2_label )
          RETURNING r, tmp1, tmp2
     IF r != VALUE_IGN THEN
        CALL dlg.setFieldTouched("sr.val2_label",TRUE)
+       IF r==VALUE_COL THEN
+          CALL check_value_input(qx, x, tmp2)
+               RETURNING cc1, cc2, cc3
+          IF cc2==-1 THEN
+             RETURN FALSE
+          END IF
+       END IF
        LET crit[x].value2 = tmp1
        LET crit[x].val2_label = tmp2
        LET crit[x].val2_type = r
     END IF
+    RETURN TRUE
 END FUNCTION
 
 PRIVATE FUNCTION equivalent_sql_types(t1,t2)
@@ -593,6 +611,10 @@ PRIVATE FUNCTION check_value_input(qx, x, label)
           OR crit[x].comp_oper == OPER_NN
           THEN
              LET crit[x].comp_oper = OPER_EQ
+          END IF
+          IF NOT equivalent_sql_types(ctp, qds[qx].tabs[tx].cols[cx].sql_type) THEN
+             CALL mbox_ok("Column types do not match")
+             RETURN NULL, -1, NULL
           END IF
        ELSE
           LET val_type = VALUE_VAL
