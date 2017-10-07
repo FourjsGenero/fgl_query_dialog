@@ -14,6 +14,7 @@ providing the database object names, the SQL types and a display label.
 
 * Genero BDL 3.10+
 * Genero Desktop Client 3.10+
+* Genero Studio 3.10+
 * GNU Make
 
 ## Compilation from command line
