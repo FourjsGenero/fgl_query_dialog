@@ -1357,6 +1357,15 @@ PRIVATE FUNCTION add_presentation_styles()
        CALL set_style_attribute(nn, "statusBarType", "none" )
        CALL set_style_attribute(nn, "errorMessagePosition", "popup" )
     END IF
+    LET nn = add_style(sl, "Window.fglquerydlg_value")
+    IF nn IS NOT NULL THEN
+       CALL set_style_attribute(nn, "windowType", "modal" )
+       CALL set_style_attribute(nn, "sizable", "yes" )
+       CALL set_style_attribute(nn, "actionPanelPosition", "bottom" )
+       CALL set_style_attribute(nn, "ringMenuPosition", "none" )
+       CALL set_style_attribute(nn, "statusBarType", "none" )
+       CALL set_style_attribute(nn, "errorMessagePosition", "popup" )
+    END IF
     LET nn = add_style(sl, "ButtonEdit.fglquerydlg_column")
     IF nn IS NOT NULL THEN
        CALL set_style_attribute(nn, "backgroundColor", "lightYellow" )
