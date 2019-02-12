@@ -9,6 +9,9 @@ PROGMOD=\
 
 all: $(PROGMOD) $(FORMS)
 
+run:: all
+	fglrun query_dialog_test
+
 %.42f: %.per
 	fglform -M $<
 
