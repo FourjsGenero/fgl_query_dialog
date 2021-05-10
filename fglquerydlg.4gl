@@ -212,15 +212,18 @@ PRIVATE FUNCTION setup_mode(d,m)
     DEFINE f ui.Form,
            x SMALLINT
     LET f = d.getForm()
-    CALL f.setFieldHidden("val_oper",  (m == MODE_BAS) )
-    CALL f.setFieldHidden("val2_label",(m == MODE_BAS) )
     IF m==MODE_BAS THEN
+       CALL f.setFieldHidden("val_oper",   1)
+       CALL f.setFieldHidden("val2_label", 1)
        FOR x=1 TO crit.getLength()
            LET crit[x].val_oper = NULL
            LET crit[x].value2 = NULL
            LET crit[x].val2_type = NULL
            LET crit[x].val2_label = NULL
        END FOR
+    ELSE
+       CALL f.setFieldHidden("val_oper",  0)
+       CALL f.setFieldHidden("val2_label",0)
     END IF
 END FUNCTION
 
@@ -1168,6 +1171,8 @@ PRIVATE FUNCTION fields_from_columns(qx, cursor, maxcols, fields)
            END IF
            IF tx>0 AND cx>0 THEN
               LET fields[x].label = qds[qx].tabs[tx].cols[cx].dsp_name
+           ELSE
+              LET fields[x].label = cursor.getResultName(x)
            END IF
         ELSE
            LET fields[x].type = "CHAR(1)"

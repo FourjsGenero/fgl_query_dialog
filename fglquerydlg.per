@@ -1,5 +1,6 @@
-LAYOUT (WINDOWSTYLE="fglquerydlg")
-GRID
+LAYOUT (WINDOWSTYLE="fglquerydlg",TEXT="Query Dialog")
+VBOX (SPLITTER)
+GRID gd1
 {
 [p1                           :   :p2                     :              :b1 :b2 ]
 <SCROLLGRID sgf                                                                  >
@@ -7,12 +8,13 @@ GRID
                                                     [vop     ]
                                             [val2                                ]
 [rop  ]
- --------------------------------------------------------------------------------
 <                                                                                >
+}
+END
+GRID gd2
+{
 [bb                                                                              ]
 <TABLE t1                                                                        >
-[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
-[c1     |c2                               |c3            |c4          |c5|c6|c7  ]
 [c1     |c2                               |c3            |c4          |c5|c6|c7  ]
 [c1     |c2                               |c3            |c4          |c5|c6|c7  ]
 [c1     |c2                               |c3            |c4          |c5|c6|c7  ]
@@ -37,17 +39,17 @@ CHECKBOX p2 = FORMONLY.case, NOT NULL,
 BUTTON b1 : sr.append, IMAGE="fa-plus", TEXT="";
 BUTTON b2 : sr.delete, IMAGE="fa-minus", TEXT="";
 
-SCROLLGRID sgf: filter, WANTFIXEDPAGESIZE=NO;
+SCROLLGRID sgf: filter, WANTFIXEDPAGESIZE=NO, INITIALPAGESIZE=4;
 PHANTOM FORMONLY.column;
 BUTTONEDIT col = FORMONLY.col_label, SCROLL,
      NOTEDITABLE, STYLE = "fglquerydlg_column",
-     ACTION=select_column, IMAGE="_undef_";
+     ACTION=select_column, IMAGE="zoom";
 COMBOBOX fop = FORMONLY.comp_oper, NOT NULL,
      INITIALIZER = fglquerydlg_cmb_comp_oper_init;
 PHANTOM FORMONLY.value;
 BUTTONEDIT val = FORMONLY.val_label, SCROLL,
      STYLE = "fglquerydlg_value",
-     ACTION=select_value, IMAGE="_undef_";
+     ACTION=select_value, IMAGE="zoom";
 PHANTOM FORMONLY.val_type;
 COMBOBOX vop = FORMONLY.val_oper,
      INITIALIZER = fglquerydlg_cmb_val_oper_init;
