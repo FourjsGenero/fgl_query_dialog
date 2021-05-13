@@ -42,7 +42,7 @@ MAIN
 END MAIN
 
 FUNCTION query_create()
-    DEFINE qx, tx, lx1, r SMALLINT
+    DEFINE qx, tx, lx1 SMALLINT
     DEFINE r1 RECORD
                 pk INTEGER,
                 lb VARCHAR(50)

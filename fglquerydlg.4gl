@@ -197,8 +197,7 @@ END FUNCTION
 PRIVATE FUNCTION pick_list_lookup(qx, lx, vl)
     DEFINE qx, lx SMALLINT,
            vl STRING
-    DEFINE x SMALLINT,
-           vk STRING
+    DEFINE x SMALLINT
     FOR x=1 TO qds[qx].pkls[lx].items.getLength()
         IF qds[qx].pkls[lx].items[x].vlabel == vl THEN
            RETURN qds[qx].pkls[lx].items[x].vkey
@@ -227,9 +226,8 @@ PRIVATE FUNCTION setup_mode(d,m)
     END IF
 END FUNCTION
 
-PRIVATE FUNCTION set_crit_defaults(qx,f,x)
+PRIVATE FUNCTION set_crit_defaults(qx,x)
     DEFINE qx SMALLINT,
-           f ui.Form,
            x SMALLINT
     LET crit[x].column = get_tab_col_name(qx,1,1)
     LET crit[x].col_label = get_tab_col_label(qx,1,1)
@@ -261,7 +259,7 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
       INPUT ARRAY crit FROM sr.* ATTRIBUTES(WITHOUT DEFAULTS, AUTO APPEND = FALSE)
 
         BEFORE INSERT
-           CALL set_crit_defaults( qx, DIALOG.getForm(), arr_curr() )
+           CALL set_crit_defaults( qx, arr_curr() )
 
         ON ACTION select_column
            CALL action_select_column(DIALOG, qx, arr_curr() )
@@ -272,7 +270,7 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
         ON ACTION select_value
            LET r = action_select_value(DIALOG, qx, arr_curr())
         AFTER FIELD val_label
-           IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
+           IF NOT check_val_label(qx, arr_curr()) THEN
               NEXT FIELD val_label
            END IF
 
@@ -282,7 +280,7 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
         ON ACTION select_value_2
            LET r = action_select_value2(DIALOG, qx, arr_curr())
         AFTER FIELD val2_label
-           IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
+           IF NOT check_val2_label(qx, arr_curr()) THEN
               NEXT FIELD val2_label
            END IF
 
@@ -291,27 +289,27 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
       BEFORE DIALOG
          CALL setup_mode(DIALOG,params.mode)
          IF new OR crit.getLength()==0 THEN
-            CALL set_crit_defaults(qx,DIALOG.getForm(),1) -- Adds a first line
+            CALL set_crit_defaults(qx,1) -- Adds a first line
          END IF
 
       ON ACTION preview
          LET r = DIALOG.validate("sr.*")
-         IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
+         IF NOT check_val_label(qx, arr_curr()) THEN
             NEXT FIELD val_label
          END IF
-         IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
+         IF NOT check_val2_label(qx, arr_curr()) THEN
             NEXT FIELD val2_label
          END IF
          CALL preview_result_set(qx)
 
       ON ACTION accept
          IF INFIELD(val_label) THEN
-            IF NOT check_val_label(DIALOG, qx, arr_curr()) THEN
+            IF NOT check_val_label(qx, arr_curr()) THEN
                NEXT FIELD val_label
             END IF
          END IF
          IF INFIELD(val2_label) THEN
-            IF NOT check_val2_label(DIALOG, qx, arr_curr()) THEN
+            IF NOT check_val2_label(qx, arr_curr()) THEN
                NEXT FIELD val2_label
             END IF
          END IF
@@ -330,9 +328,8 @@ PUBLIC FUNCTION fglquerydlg_execute(qx,new)
 
 END FUNCTION
 
-PRIVATE FUNCTION check_val_label(dlg, qx, x)
-    DEFINE dlg ui.Dialog,
-           qx SMALLINT,
+PRIVATE FUNCTION check_val_label(qx, x)
+    DEFINE qx SMALLINT,
            x SMALLINT
     DEFINE tmp1 STRING
     CALL check_value_input(qx, x, crit[x].val_label)
@@ -347,9 +344,8 @@ PRIVATE FUNCTION check_val_label(dlg, qx, x)
     END IF
 END FUNCTION
 
-PRIVATE FUNCTION check_val2_label(dlg, qx, x)
-    DEFINE dlg ui.Dialog,
-           qx SMALLINT,
+PRIVATE FUNCTION check_val2_label(qx, x)
+    DEFINE qx SMALLINT,
            x SMALLINT
     DEFINE tmp1 STRING
     CALL check_value_input(qx, x, crit[x].val2_label)
@@ -594,7 +590,7 @@ PRIVATE FUNCTION check_value_input(qx, x, label)
     END IF
     LET ctp = qds[qx].tabs[tx].cols[cx].sql_type
     IF qds[qx].tabs[tx].cols[cx].inp_type==FGLQD_IT_PICK_LIST THEN
-       IF LENGTH(label)>0 THEN
+       IF length(label)>0 THEN
           LET value = pick_list_lookup(qx, qds[qx].tabs[tx].cols[cx].pck_list, label)
           IF value IS NULL THEN
              CALL mbox_ok("The entered value does not match a pick list element")
@@ -699,6 +695,7 @@ END FUNCTION
 PRIVATE FUNCTION get_scalar_datetime(ctp,val)
 -- TODO: ISO to target DB datetime format
     DEFINE ctp, val STRING
+    LET ctp = NULL
     RETURN get_scalar_string(val)
 END FUNCTION
 
@@ -736,7 +733,7 @@ PRIVATE FUNCTION build_val_op_val(ctp, vtp, val, vop, vtp2, val2)
            vtp SMALLINT, val STRING,
            vop STRING,
            vtp2 SMALLINT, val2 STRING
-    IF vop IS NULL OR LENGTH(val2)==0 THEN
+    IF vop IS NULL OR length(val2)==0 THEN
        RETURN build_value(ctp,vtp,val)
     ELSE
        RETURN SFMT("(%1 %2 %3)", build_value(ctp,vtp,val),
@@ -756,6 +753,7 @@ PRIVATE FUNCTION get_sql_expression(ctp,cn,oc,vtp,val,vop,vtp2,val2)
            vop STRING,
            vtp2 SMALLINT,
            val2 STRING
+    LET cn = NULL
     CASE oc
       WHEN OPER_NL RETURN " IS NULL"
       WHEN OPER_NN RETURN " IS NOT NULL"
@@ -768,7 +766,7 @@ PRIVATE FUNCTION get_sql_expression(ctp,cn,oc,vtp,val,vop,vtp2,val2)
       WHEN OPER_BW RETURN " LIKE "||get_case_sens(get_scalar_string(     val||"%"))
       WHEN OPER_EW RETURN " LIKE "||get_case_sens(get_scalar_string("%"||val     ))
       WHEN OPER_CT RETURN " LIKE "||get_case_sens(get_scalar_string("%"||val||"%"))
-      WHEN OPER_RG IF LENGTH(val2)==0 THEN
+      WHEN OPER_RG IF length(val2)==0 THEN
                       RETURN SFMT(" >= %1", build_scalar_value(ctp,vtp,val))
                    ELSE
                       RETURN SFMT(" BETWEEN %1 AND %2",
@@ -859,7 +857,7 @@ PUBLIC FUNCTION fglquerydlg_get_where_part(qx)
     DEFINE wp, twp base.StringBuffer,
            txmap DYNAMIC ARRAY OF BOOLEAN,
            tx, cx, x, z SMALLINT,
-           cond, rels STRING,
+           cond STRING,
            cf BOOLEAN
     LET wp = base.StringBuffer.create()
     CALL build_used_tabs_list(qx,txmap)
@@ -963,7 +961,6 @@ END FUNCTION
 
 PRIVATE FUNCTION get_tab_col_label(qx,tx,cx)
     DEFINE qx,tx,cx SMALLINT
-    DEFINE z SMALLINT
     IF tx<1 OR tx>qds[qx].tabs.getLength() THEN RETURN NULL END IF
     IF cx<1 OR cx>qds[qx].tabs[tx].cols.getLength() THEN RETURN NULL END IF
     RETURN SFMT("[%1: %2]", qds[qx].tabs[tx].dsp_name, qds[qx].tabs[tx].cols[cx].dsp_name)
@@ -1195,7 +1192,7 @@ PRIVATE FUNCTION set_preview_column_titles(frm,maxcols,fields)
         LET cn = get_aui_node(pn, "TableColumn", fields[x].name)
         IF cn IS NOT NULL THEN
            LET cc = cn.getFirstChild()
-           IF LENGTH(fields[x].label)>0 THEN
+           IF length(fields[x].label)>0 THEN
               CALL cn.setAttribute("text",fields[x].label)
               CALL cc.setAttribute("hidden",0)
            ELSE
@@ -1216,19 +1213,17 @@ PRIVATE FUNCTION preview_result_set(qx)
                label STRING
            END RECORD,
            rsdlg ui.Dialog,
-           x SMALLINT,
-           f ui.Form
+           x SMALLINT
 
     LET cursor = base.SqlHandle.create()
     LET stmt = "SELECT ", NVL(qds[qx].select_list, "*"),
                " FROM ", fglquerydlg_get_from_part(qx),
                " WHERE ", fglquerydlg_get_where_part(qx)
-display stmt
     TRY
         CALL cursor.prepare(stmt)
         CALL cursor.open()
     CATCH
-        CALL mbox_ok(SFMT("Could not execute SQL statement:\n%1: %2",SQLCA.SQLCODE,SQLERRMESSAGE))
+        CALL mbox_ok(SFMT("Could not execute SQL statement:\n%1: %2",sqlca.sqlcode,SQLERRMESSAGE))
         RETURN
     END TRY
     CALL fields_from_columns(qx, cursor, PREVIEW_MAXCOLS, fields)
@@ -1238,10 +1233,10 @@ display stmt
         TRY
             CALL cursor.fetch() 
         CATCH
-            CALL mbox_ok(SFMT("Could not fetch data row:\n%1: %2",SQLCA.SQLCODE,SQLERRMESSAGE))
+            CALL mbox_ok(SFMT("Could not fetch data row:\n%1: %2",sqlca.sqlcode,SQLERRMESSAGE))
             RETURN
         END TRY
-        IF SQLCA.SQLCODE==NOTFOUND THEN
+        IF sqlca.sqlcode==NOTFOUND THEN
            EXIT WHILE
         END IF
         CALL rsdlg.appendRow("pv")
