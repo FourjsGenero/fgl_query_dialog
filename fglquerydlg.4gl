@@ -1156,7 +1156,7 @@ PRIVATE FUNCTION fields_from_columns(qx, cursor, maxcols, fields)
            tx, cx SMALLINT
     CALL fields.clear()
     FOR x=1 TO maxcols
-        LET fields[x].name = SFMT("formonly.col%1",x)
+        LET fields[x].name = SFMT("pv.col%1",x)
         IF x <= cursor.getResultCount() THEN
            LET fields[x].label = SFMT("Column %1",x)
            LET fields[x].type = cursor.getResultType(x)
