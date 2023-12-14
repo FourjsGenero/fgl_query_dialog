@@ -2,8 +2,9 @@
 
 ## Description
 
-This Genero BDL demo implements a generic SQL query dialog that builds the
-FROM and WHERE part of a SELECT statement.
+This Genero BDL demo implements a generic SQL query dialog that converts search
+criteria entered by the user, into a FROM and WHERE part to be used in a SELECT
+statement.
 
 Callers can configure the query dialog with DB table and column description,
 providing the database object names, the SQL types and a display label.
