@@ -13,10 +13,7 @@ providing the database object names, the SQL types and a display label.
 
 ## Prerequisites
 
-* Genero BDL 3.20+
-* Genero Browser Client 1.00.52+
-* Genero Desktop Client 3.20+
-* Genero Studio 3.20+
+* Latest Genero version
 * GNU Make
 
 ## Compilation from command line
